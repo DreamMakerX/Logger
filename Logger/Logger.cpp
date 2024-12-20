@@ -120,6 +120,15 @@ void Logger::log(const char* message, LogLevel level) {
 	}
 }
 
+std::string Logger::format(const char* format, ...) {
+	va_list args;
+	va_start(args, format);
+	std::string formattedString = formatString(format, args); // 使用va_list传递
+	va_end(args);
+
+	return formattedString;
+}
+
 std::string Logger::formatString(const char* format, va_list args) {
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));

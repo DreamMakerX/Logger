@@ -11,28 +11,29 @@ void performanceTest(Func&& func, uint64_t count = 1000000) {
 }
 
 int main() {
-	// ÈÕÖ¾¶ÔÏó´´½¨
-	Logger logger("logs");
-	//Logger logger("logs", Logger::LogLevel::LOG_INFO, false, true);// Òì²½ÈÕÖ¾
+	// æ—¥å¿—å¯¹è±¡åˆ›å»º
+	Logger logger;// é»˜è®¤"logs"æ–‡ä»¶å¤¹
+	//Logger logger("logxx");// æŒ‡å®šæ—¥å¿—è·¯å¾„
+	//Logger logger("logs", Logger::LogLevel::LOG_INFO, false, true);// å¼‚æ­¥æ—¥å¿—
 
-	// ÈÕÖ¾»ù´¡²âÊÔ
-	Logger::console("Do something successfully.");
-	Logger::console("Do something result %s.", "success");
-	Logger::console("Error code %d.", -13936);
+	//// æ—¥å¿—åŸºç¡€æµ‹è¯•
+	//Logger::console("Do something successfully.");
+	//Logger::console("Do something result %s.", "success");
+	//Logger::console("Error code %d.", -13936);
 
-	logger.debug("Do something successfully.");//Ä¬ÈÏÈÕÖ¾µÈ¼¶Îªinfo£¬²»»á´òÓ¡debugÈÕÖ¾
-	logger.setLogLevel(Logger::LOG_DEBUG);// ÉèÖÃ´òÓ¡µÈ¼¶
-	logger.debug("Do something successfully.");
-	logger.info("Do something successfully.");
-	logger.warn("Do something result %s.", "success");
-	logger.error("Error code %d.", -13936);
+	logger.debug("Do something successfully.");// é»˜è®¤æ—¥å¿—ç­‰çº§ä¸ºinfoï¼Œä¸ä¼šæ‰“å°debugæ—¥å¿—
+	//logger.setLogLevel(Logger::LOG_DEBUG);// è®¾ç½®æ‰“å°ç­‰çº§
+	//logger.debug("Do something successfully.");
+	//logger.info("Do something successfully.");
+	//logger.warn("Do something result %s.", "success");
+	//logger.error("Error code %d.", -13936);
 
-	//ÈÕÖ¾ĞÔÄÜ²âÊÔ
-	auto loggerLambda = [&logger]() {
-		return logger.info("Hello World");
-	};
-	for (auto i = 0; i < 10; ++i) {
-		performanceTest(loggerLambda);
-	}
+	//// æ—¥å¿—æ€§èƒ½æµ‹è¯•
+	//auto loggerLambda = [&logger]() {
+	//	return logger.info("Hello World");
+	//};
+	//for (auto i = 0; i < 10; ++i) {
+	//	performanceTest(loggerLambda);
+	//}
 	return 0;
 }

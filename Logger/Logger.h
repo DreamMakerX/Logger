@@ -73,7 +73,7 @@ public:
 	};
 
 	// 构造函数
-	Logger(const std::string& folderName, LogLevel level = LogLevel::LOG_INFO, bool daily = false, 
+	Logger(const std::string& folderName = "logs", LogLevel level = LogLevel::LOG_INFO, bool daily = false,
 		bool async = false, int logCycle = 10, int retentionDays = 30, size_t maxSize = 50 * 1024 * 1024);
 
 	// 析构函数
@@ -114,6 +114,9 @@ public:
 
 	// 关闭线程句柄
 	static void closeThreadHandle(HANDLE& handle, const DWORD& time = 3000);
+
+	// 格式化字符串
+	static std::string format(const char* format, ...);
 
 	// 获取当前时间的字符串格式
 	static std::string getCurrentTime();
