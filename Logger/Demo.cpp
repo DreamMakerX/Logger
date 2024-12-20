@@ -3,16 +3,15 @@
 template <typename Func>
 void performanceTest(Func&& func, uint64_t count = 1000000) {
 	uint64_t startTime = Logger::getCurrentTimeMillis();
-
 	// 执行传入的函数
 	for (auto i = 0; i < count; ++i) {
-		func();  // 直接调用传入的函数
+		func();
 	}
 	uint64_t stopTime = Logger::getCurrentTimeMillis();
 	Logger::console("The execution of %lu times takes %lu milliseconds | %lu times per millisecond", count, stopTime - startTime, count / (stopTime - startTime));
 }
 
-void loggerTest() {
+int main() {
 	// 日志对象创建
 	Logger logger("logs");
 	//Logger logger("logs", Logger::LogLevel::LOG_INFO, false, true);// 异步日志
@@ -36,9 +35,5 @@ void loggerTest() {
 	for (auto i = 0; i < 10; ++i) {
 		performanceTest(loggerLambda);
 	}
-}
-
-int main() {
-	loggerTest();
 	return 0;
 }
