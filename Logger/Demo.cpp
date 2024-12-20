@@ -1,5 +1,4 @@
 #include "Logger.h"
-#include <iostream>
 
 template <typename Func>
 void performanceTest(Func&& func, uint64_t count = 1000000) {
