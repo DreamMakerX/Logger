@@ -89,11 +89,25 @@ void Logger::console(const char* format, ...) {
 	va_end(args);
 
 	// 打印格式化的日志信息
-	std::cerr << formattedString << std::endl;
+	std::cerr << "[" << getCurrentDateTime() << "] " << formattedString << std::endl;
 }
 
 void Logger::console(const std::string& msg){
 	console(msg.c_str());
+}
+
+void Logger::output(const char* format, ...) {
+	va_list args;
+	va_start(args, format);
+	std::string formattedString = formatString(format, args); // 使用va_list传递
+	va_end(args);
+
+	formattedString = "[" + getCurrentDateTime() + "] "+ formattedString + "\n";
+	OutputDebugStringA(formattedString.c_str());
+}
+
+void Logger::output(const std::string& msg) {
+	output(msg.c_str());
 }
 
 void Logger::log(const std::string& message, LogLevel level) {

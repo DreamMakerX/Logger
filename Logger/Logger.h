@@ -124,6 +124,12 @@ public:
 	// 打印控制台日志
 	static void console(const std::string& msg);
 
+	// 打印输出窗口日志
+	static void output(const char* format, ...);
+
+	// 打印输出窗口日志
+	static void output(const std::string& msg);
+
 	// 关闭线程句柄
 	static void closeThreadHandle(HANDLE& handle, const DWORD& time = 3000);
 
@@ -160,7 +166,7 @@ private:
 	LoggerMutex             logMutex_;         // 日志输出对象锁
 	LoggerMutex             logQueueMutex_;    // 异步日志队列锁
 	std::deque<std::string> logQueue_;         // 异步日志队列
-    static const size_t     maxQueueSize_ = 100000; // 异步日志队列数最大值
+	static const size_t     maxQueueSize_ = 100000; // 异步日志队列数最大值
 	size_t                  fileSize_;         // 当前日志大小
 	int                     currentFileIndex_; // 同名文件编号
 	int                     logCycle_;         // 日志刷新周期，单位s
@@ -186,7 +192,7 @@ private:
 	// 清理过期的日志文件
 	void cleanOldLogs() const;
 
-    // 获取当前最大序号
+	// 获取当前最大序号
 	int getMaxLogSequence() const;
 
 	// 重置文件编号
