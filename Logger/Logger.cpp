@@ -1,4 +1,4 @@
-#include "Logger.h"
+﻿#include "Logger.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -104,7 +104,7 @@ void Logger::log(const char* message, LogLevel level) {
 	if (level < logLevel_ || message == nullptr) return;
 
 	std::stringstream logStream;
-	logStream << "[" << getCurrentTime() << " " << logLevelToString(level) << "] " << message;
+	logStream << "[" << getCurrentDateTime() << " " << logLevelToString(level) << "] " << message;
 
 	if (async_) {
 		{
@@ -146,21 +146,52 @@ std::string Logger::formatString(const char* format, va_list args) {
 	return std::string(buffer);
 }
 
-std::string Logger::getCurrentTime() {
+std::string Logger::getCurrentDateTime(bool isMillisecondPrecision) {
 	SYSTEMTIME st;
 	GetLocalTime(&st); // 获取当前本地时间
 
 	// 格式化时间为字符串
 	std::ostringstream oss;
+
 	oss << std::setfill('0') << std::setw(4) << st.wYear << "-"    // 年
 		<< std::setw(2) << st.wMonth << "-"                        // 月
 		<< std::setw(2) << st.wDay << " "                          // 日
 		<< std::setw(2) << st.wHour << ":"                         // 时
 		<< std::setw(2) << st.wMinute << ":"                       // 分
-		<< std::setw(2) << st.wSecond << "."                       // 秒
-		<< std::setw(3) << st.wMilliseconds;                       // 毫秒
+		<< std::setw(2) << st.wSecond;                             // 秒
+
+	if (isMillisecondPrecision) {
+		oss << "." << std::setw(3) << st.wMilliseconds;            // 毫秒
+	}
 
 	return oss.str();
+}
+
+uint64_t Logger::getCurrentTimestamp(bool isMillisecondPrecision) {
+	// 获取当前系统时间
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+
+	// 将 SYSTEMTIME 转换为 FILETIME
+	FILETIME ft;
+	SystemTimeToFileTime(&st, &ft);
+
+	// 将 FILETIME 转换为 64 位整数（100 纳秒为单位的时间戳）
+	ULARGE_INTEGER ull;
+	ull.LowPart = ft.dwLowDateTime;
+	ull.HighPart = ft.dwHighDateTime;
+
+	// Windows FILETIME 起始时间是 1601 年 1 月 1 日，减去 Unix 时间起始时间 1970 年 1 月 1 日
+	const long long WINDOWS_TO_UNIX_EPOCH = 116444736000000000LL;
+
+	// 计算从 1970 年 1 月 1 日开始的时间戳（单位：毫秒）
+	uint64_t timestamp = (ull.QuadPart - WINDOWS_TO_UNIX_EPOCH) / 10000;
+
+	if (isMillisecondPrecision) {
+		return timestamp;
+	}
+
+	return timestamp / 1000;
 }
 
 std::string Logger::getCurrentDateHour() const{
@@ -308,12 +339,12 @@ void Logger::resetFileIndex() {
 
 DWORD WINAPI Logger::logThreadFunction(LPVOID lpVoid) {
 	Logger* logger = (Logger*)lpVoid;
-	static auto lastWriteTime = getCurrentTimeMillis();
+	static auto lastWriteTime = getCurrentTimestamp();
 	while (!logger->exit_) {
 		Sleep(30);
 		std::deque<std::string> logsToWrite;
 		{
-			auto currentTime = getCurrentTimeMillis();
+			auto currentTime = getCurrentTimestamp();
 			LoggerLockGuard lock(logger->logQueueMutex_);
 			if (logger->logQueue_.empty()) {
 				continue;
@@ -350,7 +381,7 @@ void Logger::flushRemainingLogs() {
 DWORD WINAPI Logger::checkThreadFunction(LPVOID lpVoid) {
 	Logger* logger = (Logger*)lpVoid;
 	logger->cleanOldLogs();
-	auto lastCleanTime = getCurrentTimeMillis();
+	auto lastCleanTime = getCurrentTimestamp();
 	while (!logger->exit_) {
 		Sleep(500);
 		logger->resetFileIndex();
@@ -382,27 +413,4 @@ std::string Logger::logLevelToString(LogLevel level) {
 		return "ERROR";
 	}
 	return "UNKNOWN";
-}
-
-uint64_t Logger::getCurrentTimeMillis() {
-	// 获取当前系统时间
-	SYSTEMTIME st;
-	GetSystemTime(&st);
-
-	// 将 SYSTEMTIME 转换为 FILETIME
-	FILETIME ft;
-	SystemTimeToFileTime(&st, &ft);
-
-	// 将 FILETIME 转换为 64 位整数（100 纳秒为单位的时间戳）
-	ULARGE_INTEGER ull;
-	ull.LowPart = ft.dwLowDateTime;
-	ull.HighPart = ft.dwHighDateTime;
-
-	// Windows FILETIME 起始时间是 1601 年 1 月 1 日，减去 Unix 时间起始时间 1970 年 1 月 1 日
-	const long long WINDOWS_TO_UNIX_EPOCH = 116444736000000000LL;
-
-	// 计算从 1970 年 1 月 1 日开始的时间戳（单位：毫秒）
-	uint64_t timestampInMilliseconds = (ull.QuadPart - WINDOWS_TO_UNIX_EPOCH) / 10000;
-
-	return timestampInMilliseconds;
 }

@@ -1,4 +1,4 @@
-/******************************************************************************/
+﻿/******************************************************************************/
 /* File Name:    Logger.h                                                    */
 /* Author:       congcong.zhang                                              */
 /* Date:         2023-07-01                                                  */
@@ -6,7 +6,7 @@
 /* Description:  This file defines a logging class for the Windows platform, */
 /*               specifically designed for development in the Visual Studio  */
 /*               environment. It supports Visual Studio versions 2010 to     */
-/*               2022 (MSVC toolchains).                                     */
+/*               2022 (MSVC toolchain).                                      */
 /*----------------------------------------------------------------------------*/
 /* Details:                                                                  */
 /*   - The class utilizes Windows-specific features and should be used in    */
@@ -38,24 +38,36 @@ class LoggerMutex {
 public:
 	LoggerMutex() {
 		InitializeCriticalSection(&section_);
+		release = false;
 	}
 	~LoggerMutex() {
 		DeleteCriticalSection(&section_);
+		release = true;
 	}
 	PCRITICAL_SECTION cs() {
 		return &section_;
 	}
+	bool getReleaseFlag() {
+		return release;
+	}
 
 private:
+	bool release;// 防止LoggerMutex释放后，依然使用LoggerLockGuard产生崩溃
 	CRITICAL_SECTION section_;
 };
 
 class LoggerLockGuard {
 public:
 	LoggerLockGuard(LoggerMutex& mutex) : mutex_(mutex) {
+		if (mutex_.getReleaseFlag()) {
+			return;
+		}
 		EnterCriticalSection(mutex_.cs());
 	}
 	~LoggerLockGuard() {
+		if (mutex_.getReleaseFlag()) {
+			return;
+		}
 		LeaveCriticalSection(mutex_.cs());
 	}
 
@@ -109,7 +121,7 @@ public:
 	// 打印控制台日志
 	static void console(const char* format, ...);
 
-	// 打印错误日志
+	// 打印控制台日志
 	static void console(const std::string& msg);
 
 	// 关闭线程句柄
@@ -118,16 +130,16 @@ public:
 	// 格式化字符串
 	static std::string format(const char* format, ...);
 
-	// 获取当前时间的字符串格式
-	static std::string getCurrentTime();
+	// 获取当前时间的字符串格式，默认精确到毫秒
+	static std::string getCurrentDateTime(bool isMillisecondPrecision = true);
 
-	// 返回 Unix 纪元时间，精确到毫秒
-	static uint64_t getCurrentTimeMillis();
+	// 获取当前Unix纪元时间，默认精确到毫秒
+	static uint64_t getCurrentTimestamp(bool isMillisecondPrecision = true);
 
 	// 周期执行任务
 	template <typename Func>
 	static void executeTaskPeriodically(uint64_t& lastTime, uint64_t cycle, Func func) {
-		uint64_t nowTime = getCurrentTimeMillis();
+		uint64_t nowTime = getCurrentTimestamp();
 		if (nowTime > lastTime + cycle) {
 			func();
 			lastTime = nowTime;
