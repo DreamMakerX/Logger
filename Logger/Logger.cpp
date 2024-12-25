@@ -144,7 +144,7 @@ std::string Logger::format(const char* format, ...) {
 }
 
 std::string Logger::formatString(const char* format, va_list args) {
-	char buffer[16];
+	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 	int rsp = vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, format, args);
 
