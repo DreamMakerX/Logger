@@ -144,14 +144,12 @@ std::string Logger::format(const char* format, ...) {
 }
 
 std::string Logger::formatString(const char* format, va_list args) {
-	char buffer[1024];
-	memset(buffer, 0, sizeof(buffer));
+	char buffer[4 * 1024];
 	int rsp = vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, format, args);
 
-	if (rsp < 0 || rsp > static_cast<int>(sizeof(buffer) - 1)) {  // 重新分配内存
+	if (rsp < 0 || rsp >= static_cast<int>(sizeof(buffer))) {  // 重新分配内存
 		const static size_t MAX_BUFFER_SIZE = 1024 * 1024;
 		std::unique_ptr<char[]> newBuffer(new char[MAX_BUFFER_SIZE]);
-		memset(newBuffer.get(), 0, MAX_BUFFER_SIZE);
 		vsnprintf_s(newBuffer.get(), MAX_BUFFER_SIZE, _TRUNCATE, format, args);
 
 		return std::string(newBuffer.get());
