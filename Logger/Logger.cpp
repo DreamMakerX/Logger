@@ -36,7 +36,7 @@ void Logger::debug(const char* format, ...) {
 	std::string formattedString = formatString(format, args); // 使用va_list传递
 	va_end(args);
 
-	log(formattedString, LogLevel::LOG_DEBUG);
+	log(formattedString, LOG_DEBUG);
 }
 
 void Logger::debug(const std::string& msg){
@@ -49,7 +49,7 @@ void Logger::info(const char* format, ...) {
 	std::string formattedString = formatString(format, args); // 使用va_list传递
 	va_end(args);
 
-	log(formattedString, LogLevel::LOG_INFO);
+	log(formattedString, LOG_INFO);
 }
 
 void Logger::info(const std::string& msg){
@@ -62,7 +62,7 @@ void Logger::warn(const char* format, ...) {
 	std::string formattedString = formatString(format, args); // 使用va_list传递
 	va_end(args);
 
-	log(formattedString, LogLevel::LOG_WARNING);
+	log(formattedString, LOG_WARNING);
 }
 
 void Logger::warn(const std::string& msg){
@@ -75,7 +75,7 @@ void Logger::error(const char* format, ...) {
 	std::string formattedString = formatString(format, args); // 使用va_list传递
 	va_end(args);
 
-	log(formattedString, LogLevel::LOG_ERROR);
+	log(formattedString, LOG_ERROR);
 }
 
 void Logger::error(const std::string& msg){
@@ -144,15 +144,15 @@ std::string Logger::format(const char* format, ...) {
 }
 
 std::string Logger::formatString(const char* format, va_list args) {
-	char buffer[1024];
+	char buffer[16];
 	memset(buffer, 0, sizeof(buffer));
-	int rsp = vsnprintf(buffer, sizeof(buffer) - 1, format, args);
+	int rsp = vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, format, args);
 
 	if (rsp < 0 || rsp > static_cast<int>(sizeof(buffer) - 1)) {  // 重新分配内存
 		const static size_t MAX_BUFFER_SIZE = 1024 * 1024;
 		std::unique_ptr<char[]> newBuffer(new char[MAX_BUFFER_SIZE]);
 		memset(newBuffer.get(), 0, MAX_BUFFER_SIZE);
-		vsnprintf(newBuffer.get(), MAX_BUFFER_SIZE - 1, format, args);
+		vsnprintf_s(newBuffer.get(), MAX_BUFFER_SIZE, _TRUNCATE, format, args);
 
 		return std::string(newBuffer.get());
 	}
@@ -417,13 +417,13 @@ void Logger::closeThreadHandle(HANDLE& handle, const DWORD& time)
 
 std::string Logger::logLevelToString(LogLevel level) {
 	switch (level) {
-	case LogLevel::LOG_DEBUG:
+	case LOG_DEBUG:
 		return "DEBUG";
-	case LogLevel::LOG_INFO:
+	case LOG_INFO:
 		return "INFO";
-	case LogLevel::LOG_WARNING:
+	case LOG_WARNING:
 		return "WARNING";
-	case LogLevel::LOG_ERROR:
+	case LOG_ERROR:
 		return "ERROR";
 	}
 	return "UNKNOWN";

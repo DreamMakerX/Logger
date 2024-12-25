@@ -14,7 +14,7 @@ int main() {
 	//// 日志对象创建
 	Logger logger;// 默认"logs"文件夹
 	//Logger logger("logxx");// 指定日志路径
-	//Logger logger("logs", Logger::LogLevel::LOG_INFO, false, true);// 异步日志
+	//Logger logger("logs", Logger::LOG_INFO, false, true);// 异步日志
 
 	// 日志基础测试：控制台日志
 	Logger::console("Application started successfully.");

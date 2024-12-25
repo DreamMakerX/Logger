@@ -85,7 +85,7 @@ public:
 	};
 
 	// 构造函数
-	Logger(const std::string& folderName = "logs", LogLevel level = LogLevel::LOG_INFO, bool daily = false,
+	Logger(const std::string& folderName = "logs", LogLevel level = LOG_INFO, bool daily = false,
 		bool async = false, int logCycle = 10, int retentionDays = 30, size_t maxSize = 50 * 1024 * 1024);
 
 	// 析构函数
@@ -172,10 +172,10 @@ private:
 	int                     logCycle_;         // 日志刷新周期，单位s
 
 	// 同步日志
-	void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO);
+	void log(const std::string& message, LogLevel level = LOG_INFO);
 
 	// 同步日志
-	void log(const char* message, LogLevel level = LogLevel::LOG_INFO);
+	void log(const char* message, LogLevel level = LOG_INFO);
 
 	// 格式化字符串
 	static std::string formatString(const char* format, va_list args);
