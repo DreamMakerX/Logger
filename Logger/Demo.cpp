@@ -16,6 +16,10 @@ int main() {
 	//Logger logger("logxx");// 指定日志路径
 	//Logger logger("logs", Logger::LOG_INFO, false, true);// 异步日志
 
+	// 获取16进制表示
+	std::string msg = "Application started successfully.";
+	Logger::console(Logger::getHexString(msg.c_str(), msg.size()));
+
 	// 日志基础测试：控制台日志
 	Logger::console("Application started successfully.");
 	Logger::console("Low memory detected. Consider freeing some %s.", "resources");
@@ -34,12 +38,12 @@ int main() {
 	logger.warn("Low memory detected. Consider freeing some %s.", "resources");
 	logger.error("Failed to open the no.%d configuration file. Please check the path.", 13936);
 
-	//// 日志性能测试
-	//auto loggerLambda = [&logger]() {
-	//	return logger.info("Hello World");
-	//};
-	//for (auto i = 0; i < 10; ++i) {
-	//	performanceTest(loggerLambda);
-	//}
+	// 日志性能测试
+	auto loggerLambda = [&logger]() {
+		return logger.info("Hello World!");
+	};
+	for (auto i = 0; i < 10; ++i) {
+		performanceTest(loggerLambda);
+	}
 	return 0;
 }

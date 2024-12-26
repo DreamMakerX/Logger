@@ -136,6 +136,9 @@ public:
 	// 格式化字符串
 	static std::string format(const char* format, ...);
 
+	// 获取16进制表示
+	static std::string getHexString(const char* content, size_t len);
+
 	// 获取当前时间的字符串格式，默认精确到毫秒
 	static std::string getCurrentDateTime(bool isMillisecondPrecision = true);
 

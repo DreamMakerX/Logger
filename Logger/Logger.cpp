@@ -31,6 +31,9 @@ void Logger::setLogLevel(LogLevel level) {
 }
 
 void Logger::debug(const char* format, ...) {
+	if (format == nullptr) {
+		return;
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
@@ -39,11 +42,14 @@ void Logger::debug(const char* format, ...) {
 	log(formattedString, LOG_DEBUG);
 }
 
-void Logger::debug(const std::string& msg){
+void Logger::debug(const std::string& msg) {
 	debug(msg.c_str());
 }
 
 void Logger::info(const char* format, ...) {
+	if (format == nullptr) {
+		return;
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
@@ -52,11 +58,14 @@ void Logger::info(const char* format, ...) {
 	log(formattedString, LOG_INFO);
 }
 
-void Logger::info(const std::string& msg){
+void Logger::info(const std::string& msg) {
 	info(msg.c_str());
 }
 
 void Logger::warn(const char* format, ...) {
+	if (format == nullptr) {
+		return;
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
@@ -65,11 +74,14 @@ void Logger::warn(const char* format, ...) {
 	log(formattedString, LOG_WARNING);
 }
 
-void Logger::warn(const std::string& msg){
+void Logger::warn(const std::string& msg) {
 	warn(msg.c_str());
 }
 
 void Logger::error(const char* format, ...) {
+	if (format == nullptr) {
+		return;
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
@@ -78,11 +90,14 @@ void Logger::error(const char* format, ...) {
 	log(formattedString, LOG_ERROR);
 }
 
-void Logger::error(const std::string& msg){
+void Logger::error(const std::string& msg) {
 	error(msg.c_str());
 }
 
 void Logger::console(const char* format, ...) {
+	if (format == nullptr) {
+		return;
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
@@ -92,17 +107,20 @@ void Logger::console(const char* format, ...) {
 	std::cerr << "[" << getCurrentDateTime() << "] " << formattedString << std::endl;
 }
 
-void Logger::console(const std::string& msg){
+void Logger::console(const std::string& msg) {
 	console(msg.c_str());
 }
 
 void Logger::output(const char* format, ...) {
+	if (format == nullptr) {
+		return;
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
 	va_end(args);
 
-	formattedString = "[" + getCurrentDateTime() + "] "+ formattedString + "\n";
+	formattedString = "[" + getCurrentDateTime() + "] " + formattedString + "\n";
 	OutputDebugStringA(formattedString.c_str());
 }
 
@@ -118,7 +136,7 @@ void Logger::log(const char* message, LogLevel level) {
 	if (level < logLevel_ || message == nullptr) return;
 
 	std::stringstream logStream;
-	logStream << "[" << getCurrentDateTime() << " " << logLevelToString(level) << "] " << message;
+	logStream << "[" << getCurrentDateTime() << "] [" << logLevelToString(level) << "] " << message;
 
 	if (async_) {
 		{
@@ -135,6 +153,9 @@ void Logger::log(const char* message, LogLevel level) {
 }
 
 std::string Logger::format(const char* format, ...) {
+	if (format == nullptr) {
+		return "";
+	}
 	va_list args;
 	va_start(args, format);
 	std::string formattedString = formatString(format, args); // 使用va_list传递
@@ -144,6 +165,9 @@ std::string Logger::format(const char* format, ...) {
 }
 
 std::string Logger::formatString(const char* format, va_list args) {
+	if (format == nullptr) {
+		return "";
+	}
 	char buffer[4 * 1024];
 	int rsp = vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, format, args);
 
@@ -156,6 +180,27 @@ std::string Logger::formatString(const char* format, va_list args) {
 	}
 
 	return std::string(buffer);
+}
+
+std::string Logger::getHexString(const char* content, size_t len) {
+	if (content == nullptr || len == 0 || len > 50 * 1024 * 1024) {
+		return "";
+	}
+	static const char* hexChars = "0123456789ABCDEF";
+	size_t hexLen = len * 3 - 1;
+	std::unique_ptr<char[]> hexData(new char[hexLen + 1]);
+
+	for (size_t i = 0, j = 0; i < len; ++i) {
+		if (i != 0) {
+			hexData[j++] = ' ';
+		}
+		unsigned char byte = static_cast<unsigned char>(content[i]);
+		hexData[j++] = hexChars[(byte >> 4) & 0x0F];
+		hexData[j++] = hexChars[byte & 0x0F];
+	}
+	hexData[hexLen] = '\0';
+
+	return hexData.get();
 }
 
 std::string Logger::getCurrentDateTime(bool isMillisecondPrecision) {
@@ -206,7 +251,7 @@ uint64_t Logger::getCurrentTimestamp(bool isMillisecondPrecision) {
 	return timestamp / 1000;
 }
 
-std::string Logger::getCurrentDateHour() const{
+std::string Logger::getCurrentDateHour() const {
 	SYSTEMTIME st;
 	GetLocalTime(&st); // 获取当前本地时间
 
@@ -350,6 +395,9 @@ void Logger::resetFileIndex() {
 }
 
 DWORD WINAPI Logger::logThreadFunction(LPVOID lpVoid) {
+	if (lpVoid == nullptr) {
+		return 0;
+	}
 	Logger* logger = (Logger*)lpVoid;
 	static auto lastWriteTime = getCurrentTimestamp();
 	while (!logger->exit_) {
@@ -391,6 +439,9 @@ void Logger::flushRemainingLogs() {
 }
 
 DWORD WINAPI Logger::checkThreadFunction(LPVOID lpVoid) {
+	if (lpVoid == nullptr) {
+		return 0;
+	}
 	Logger* logger = (Logger*)lpVoid;
 	logger->cleanOldLogs();
 	auto lastCleanTime = getCurrentTimestamp();
