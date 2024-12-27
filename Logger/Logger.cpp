@@ -204,8 +204,9 @@ std::string Logger::getHexString(const char* content, size_t len) {
 }
 
 std::string Logger::getCurrentDateTime(bool isMillisecondPrecision) {
+	// 获取当前本地时间
 	SYSTEMTIME st;
-	GetLocalTime(&st); // 获取当前本地时间
+	GetLocalTime(&st); 
 
 	// 格式化时间为字符串
 	std::ostringstream oss;
@@ -239,7 +240,7 @@ uint64_t Logger::getCurrentTimestamp(bool isMillisecondPrecision) {
 	ull.HighPart = ft.dwHighDateTime;
 
 	// Windows FILETIME 起始时间是 1601 年 1 月 1 日，减去 Unix 时间起始时间 1970 年 1 月 1 日
-	const long long WINDOWS_TO_UNIX_EPOCH = 116444736000000000LL;
+	const uint64_t WINDOWS_TO_UNIX_EPOCH = 116444736000000000;
 
 	// 计算从 1970 年 1 月 1 日开始的时间戳（单位：毫秒）
 	uint64_t timestamp = (ull.QuadPart - WINDOWS_TO_UNIX_EPOCH) / 10000;
@@ -257,18 +258,15 @@ std::string Logger::getCurrentDateHour() const {
 
 	// 使用字符串流格式化时间
 	std::ostringstream oss;
-	if (daily_) {
-		// 格式化为 YYYYMMDD
-		oss << std::setfill('0') << std::setw(4) << st.wYear
-			<< std::setw(2) << st.wMonth
-			<< std::setw(2) << st.wDay;
-	}
-	else {
+
+	// 格式化为 YYYYMMDD
+	oss << std::setfill('0') << std::setw(4) << st.wYear
+		<< std::setw(2) << st.wMonth
+		<< std::setw(2) << st.wDay;
+
+	if (!daily_) {
 		// 格式化为 YYYYMMDDHH
-		oss << std::setfill('0') << std::setw(4) << st.wYear
-			<< std::setw(2) << st.wMonth
-			<< std::setw(2) << st.wDay
-			<< std::setw(2) << st.wHour;
+		oss << std::setw(2) << st.wHour;
 	}
 
 	return oss.str();

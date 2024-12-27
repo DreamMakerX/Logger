@@ -40,7 +40,7 @@ int main() {
 
 	// 日志性能测试
 	auto loggerLambda = [&logger]() {
-		return logger.info("Hello World!");
+		return logger.info("Hello, World!");
 	};
 	for (auto i = 0; i < 10; ++i) {
 		performanceTest(loggerLambda);
