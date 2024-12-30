@@ -95,7 +95,7 @@ public:
 	void setLogLevel(LogLevel level);
 
 	// 创建文件夹
-	bool CreateFolder() const;
+	bool createFolder() const;
 
 	// 打印调试日志
 	void debug(const char* format, ...);
@@ -172,7 +172,7 @@ private:
 	LoggerMutex             logMutex_;         // 日志输出对象锁
 	LoggerMutex             logQueueMutex_;    // 异步日志队列锁
 	std::deque<std::string> logQueue_;         // 异步日志队列
-	static const size_t     maxQueueSize_ = 100000; // 异步日志队列数最大值
+	static const size_t     maxQueueSize_ = 65536; // 异步日志队列数最大值
 	size_t                  fileSize_;         // 当前日志大小
 	int                     currentFileIndex_; // 同名文件编号
 	int                     logCycle_;         // 日志刷新周期，单位s
@@ -193,7 +193,7 @@ private:
 	std::string getLogFileName() const;
 
 	// 获取绝对路径
-	static std::string GetAbsolutePath(const std::string& folderName);
+	static std::string getAbsolutePath(const std::string& folderName);
 
 	// 将日志消息写入文件
 	void writeToFile(const std::string& message);

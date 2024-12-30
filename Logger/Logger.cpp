@@ -16,7 +16,7 @@ Logger::Logger(const std::string& folderName, LogLevel level, bool daily, bool a
 	retentionDays_(retentionDays), maxSize_(maxSize), fileSize_(0), exit_(false), currentFileIndex_(getMaxLogSequence() + 1),
 	logThread_(nullptr), checkThread_(nullptr) {
 
-	folderName_ = GetAbsolutePath(folderName_);
+	folderName_ = getAbsolutePath(folderName_);
 
 	LPDWORD threadID = 0;
 	if (async_) {
@@ -284,7 +284,7 @@ std::string Logger::getLogFileName() const {
 	return fileName.str();
 }
 
-std::string Logger::GetAbsolutePath(const std::string& folderName) {
+std::string Logger::getAbsolutePath(const std::string& folderName) {
 	// 如果传入的路径已经是绝对路径，直接返回
 	if (folderName.empty()) {
 		return "";
@@ -325,7 +325,7 @@ std::string Logger::GetAbsolutePath(const std::string& folderName) {
 	return std::string(absolutePath);
 }
 
-bool Logger::CreateFolder() const {
+bool Logger::createFolder() const {
 	// 判断文件夹路径是否为空
 	if (folderName_.empty()) {
 		return false;
