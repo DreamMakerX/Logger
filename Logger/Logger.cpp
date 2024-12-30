@@ -17,7 +17,6 @@ Logger::Logger(const std::string& folderName, LogLevel level, bool daily, bool a
 	logThread_(nullptr), checkThread_(nullptr) {
 
 	folderName_ = GetAbsolutePath(folderName_);
-	CreateFolder();
 
 	LPDWORD threadID = 0;
 	if (async_) {
