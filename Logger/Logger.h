@@ -94,6 +94,9 @@ public:
 	// 设置日志级别
 	void setLogLevel(LogLevel level);
 
+	// 创建文件夹
+	bool CreateFolder();
+
 	// 打印调试日志
 	void debug(const char* format, ...);
 
@@ -188,6 +191,9 @@ private:
 
 	// 获取日志文件名，基于当前时间和文件编号
 	std::string getLogFileName() const;
+
+	// 获取绝对路径
+	std::string GetAbsolutePath(const std::string& folderName);
 
 	// 将日志消息写入文件
 	void writeToFile(const std::string& message);

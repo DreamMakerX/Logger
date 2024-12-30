@@ -7,11 +7,18 @@
 #include <regex>
 #include <io.h>
 #include <sys/stat.h>
+#include <shlwapi.h>
+
+#pragma comment(lib, "shlwapi.lib")
 
 Logger::Logger(const std::string& folderName, LogLevel level, bool daily, bool async, int logCycle, int retentionDays, size_t maxSize)
 	: folderName_(folderName), logLevel_(level), daily_(daily), async_(async), logCycle_(logCycle),
 	retentionDays_(retentionDays), maxSize_(maxSize), fileSize_(0), exit_(false), currentFileIndex_(getMaxLogSequence() + 1),
 	logThread_(nullptr), checkThread_(nullptr) {
+
+	folderName_ = GetAbsolutePath(folderName_);
+	CreateFolder();
+
 	LPDWORD threadID = 0;
 	if (async_) {
 		logThread_ = (HANDLE)CreateThread(nullptr, 0, logThreadFunction, (LPVOID)this, 0, threadID);
@@ -276,6 +283,88 @@ std::string Logger::getLogFileName() const {
 	std::stringstream fileName;
 	fileName << folderName_ << "/" << getCurrentDateHour() << "_" << currentFileIndex_ << ".log";
 	return fileName.str();
+}
+
+std::string Logger::GetAbsolutePath(const std::string& folderName) {
+	// 如果传入的路径已经是绝对路径，直接返回
+	if (folderName.empty()) {
+		return "";
+	}
+
+	// 用于存放最终的绝对路径
+	char absolutePath[MAX_PATH];
+
+	// 如果传入的是相对路径，获取当前程序的路径并拼接
+	if (folderName[0] != '\\' && folderName[1] != ':') {
+		// 获取当前程序的路径
+		if (GetModuleFileNameA(NULL, absolutePath, MAX_PATH) == 0) {
+			return ""; // 获取失败
+		}
+
+		// 获取当前路径（即程序路径）的文件夹部分
+		std::string currentPath = absolutePath;
+		size_t pos = currentPath.find_last_of("\\/");
+		if (pos != std::string::npos) {
+			currentPath = currentPath.substr(0, pos); // 获取当前路径的文件夹部分
+		}
+
+		// 拼接相对路径和当前路径
+		currentPath += "\\" + folderName;
+
+		// 获取拼接后的绝对路径
+		if (_fullpath(absolutePath, currentPath.c_str(), MAX_PATH) == NULL) {
+			return ""; // 获取绝对路径失败
+		}
+	}
+	else {
+		// 如果已经是绝对路径，直接返回
+		if (_fullpath(absolutePath, folderName.c_str(), MAX_PATH) == NULL) {
+			return ""; // 获取绝对路径失败
+		}
+	}
+
+	return std::string(absolutePath);
+}
+
+bool Logger::CreateFolder() {
+	// 判断文件夹路径是否为空
+	if (folderName_.empty()) {
+		return false;
+	}
+
+	// 检查文件夹是否已存在
+	if (PathFileExistsA(folderName_.c_str())) {
+		return true; // 文件夹已存在，直接返回
+	}
+
+	// 将路径中的所有 '\\' 替换为 '/'
+	std::string path = folderName_;
+	std::replace(path.begin(), path.end(), '\\', '/');
+
+	// 确保路径以斜杠结尾
+	if (path.back() != '/') {
+		path += '/';
+	}
+
+	// 分割路径，逐级创建文件夹
+	size_t pos = 0;
+	while ((pos = path.find('/', pos)) != std::string::npos) {
+		std::string subPath = path.substr(0, pos);
+
+		// 创建该路径
+		// 注意：在 Windows 中我们依然需要用 '\\' 来调用 CreateDirectoryA，
+		// 所以此处必须在创建文件夹时再做一次转换。
+		std::replace(subPath.begin(), subPath.end(), '/', '\\');
+		if (CreateDirectoryA(subPath.c_str(), NULL) == 0) {
+			// 如果创建失败且错误不是因为文件夹已存在，则返回失败
+			if (GetLastError() != ERROR_ALREADY_EXISTS) {
+				return false;
+			}
+		}
+		pos++;
+	}
+
+	return true;
 }
 
 void Logger::writeToFile(const std::string& message) {
