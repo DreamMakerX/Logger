@@ -95,7 +95,7 @@ public:
 	void setLogLevel(LogLevel level);
 
 	// 创建文件夹
-	bool CreateFolder();
+	bool CreateFolder() const;
 
 	// 打印调试日志
 	void debug(const char* format, ...);
@@ -193,7 +193,7 @@ private:
 	std::string getLogFileName() const;
 
 	// 获取绝对路径
-	std::string GetAbsolutePath(const std::string& folderName);
+	static std::string GetAbsolutePath(const std::string& folderName);
 
 	// 将日志消息写入文件
 	void writeToFile(const std::string& message);

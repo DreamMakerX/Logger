@@ -325,7 +325,7 @@ std::string Logger::GetAbsolutePath(const std::string& folderName) {
 	return std::string(absolutePath);
 }
 
-bool Logger::CreateFolder() {
+bool Logger::CreateFolder() const {
 	// 判断文件夹路径是否为空
 	if (folderName_.empty()) {
 		return false;

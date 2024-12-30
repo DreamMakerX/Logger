@@ -17,7 +17,7 @@ int main() {
 	//Logger logger("logs", Logger::LOG_INFO, false, true);// 异步日志
 
 	// 创建日志文件夹（可选）
-	logger.CreateFolder();
+	logger.createFolder();
 	
 	// 获取16进制表示
 	std::string msg = "Application started successfully.";
